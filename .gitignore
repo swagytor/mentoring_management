@@ -210,3 +210,6 @@ __marimo__/
 postgres-data/
 static/
 media/
+
+# Pycharm run configurations
+.run/
