@@ -1,0 +1,55 @@
+default_language_version:
+  python: python3.12
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: trailing-whitespace
+        types: [python]
+      - id: end-of-file-fixer
+        types: [python]
+      - id: debug-statements
+        types: [python]
+      - id: mixed-line-ending
+        args: [ '--fix=lf' ]
+        description: Forces to replace line ending by the UNIX 'lf' character.
+        types: [python]
+      - id: check-merge-conflict
+        types: [python]
+      - id: check-ast
+        types: [python]
+
+  - repo: https://github.com/psf/black
+    rev: '23.7.0'
+    hooks:
+    - id: black
+      types: [python]
+      args: [-l, '100']
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.0
+    hooks:
+      - id: ruff
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: '1.8.6'
+    hooks:
+      - id: bandit
+        name: bandit
+        entry: bandit
+        args: [
+          "-x", "tests,venv,migrations",
+          "-s", "B324,B301,B501,B602,B405,B314,B703,B308",
+          "--severity-level", "medium",
+          "--confidence-level", "medium"
+        ]
+        language: python
+        additional_dependencies: [ bandit ]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        args: ['--toml=app/pyproject.toml', '-L assertIn']
+        additional_dependencies:
+          - tomli

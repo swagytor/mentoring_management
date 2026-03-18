@@ -1,0 +1,84 @@
+version: '3.7'
+
+networks:
+  network:
+    name: ${PROJECT_NAME}-network
+
+volumes:
+  mentoring_management_db_data:
+    name: mentoring_management_db_data
+
+services:
+  db:
+    container_name: ${PROJECT_NAME}-db
+    image: postgres:18.3-alpine
+    command: -c config_file=/etc/postgresql.conf
+    ports:
+      - ${DB_PORT:-5432}:5432
+    volumes:
+      - ../postgresql/postgresql.conf:/etc/postgresql.conf
+      - ../postgresql/pg_hba.conf:/etc/pg_hba.conf
+      - ../${POSTGRES_DATA:-postgres-data}:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PORT: ${DB_PORT}
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    networks:
+      - network
+    expose:
+      - ${DB_PORT}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -p $$POSTGRES_PORT" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: ${PROJECT_NAME}-backend
+    env_file:
+      - .env
+    volumes:
+      - ../app:/app
+      - ../static:/static
+      - ../media:/media
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+      target: ${WSGI_TARGET}
+    expose:
+      - ${WSGI_PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - network
+
+  nginx:
+    container_name: ${PROJECT_NAME}-nginx
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.nginx
+      args:
+        NGINX_VERSION: ${NGINX_VERSION}
+    ports:
+      - ${NGINX_OUTER_PORT}:${NGINX_INNER_PORT}
+    volumes:
+      - ../static:/static
+      - ../media:/media
+    depends_on:
+      - backend
+    networks:
+      - network
+
+  redis:
+    container_name: ${PROJECT_NAME}-redis
+    image: redis:8.6-alpine
+    command: [ "redis-server", "--requirepass", "redis" ]
+    ports:
+      - ${REDIS_LOCAL_PORT:-6379}:6379
+    networks:
+      - network
