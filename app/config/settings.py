@@ -26,10 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ENVIRONMENT: Literal["development", "production", "testing"] = (
-    os.environ.get(  # type:ignore[assignment]
-        "ENVIRONMENT", "development"
-    )
+ENVIRONMENT: Literal[
+    "development", "production", "testing"
+] = os.environ.get(  # type:ignore[assignment]
+    "ENVIRONMENT", "development"
 )
 DEBUG = bool(int(os.getenv("DEBUG", 1)))
 PROD = bool(int(os.getenv("PROD", 0)))
@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     "django_filters",
+    # local apps
+    "users.apps.UsersConfig",
 ]
 
 MIDDLEWARE = [
@@ -71,6 +73,14 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Mentoring Management API",
@@ -168,3 +178,7 @@ STATIC_ROOT = "/static/"
 
 MEDIA_URL = os.environ.get("MEDIA_URL")
 MEDIA_ROOT = "/media/"
+
+# Auth user model
+# https://docs.djangoproject.com/en/6.0/topics/auth/customizing/#substituting-a-custom-user-model
+AUTH_USER_MODEL = "users.User"
