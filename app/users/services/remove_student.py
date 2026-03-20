@@ -17,7 +17,9 @@ class RemoveStudentService:
         if student_id is None:
             raise ValidationError({"error": _("Не передан ID студента")})
         student = (
-            User.objects.prefetch_related("students").select_related("mentor").filter(id=student_id)
+            User.objects.prefetch_related("students")
+            .select_related("mentor")
+            .filter(id=student_id)
         ).first()
 
         if not student:
@@ -27,9 +29,13 @@ class RemoveStudentService:
 
     def _remove_student(self, mentor: User, student: User) -> User:
         if student.mentor is None:
-            raise ValidationError({"error": _("У студента отсутствует ментор")})
+            raise ValidationError(
+                {"error": _("У студента отсутствует ментор")}
+            )
         elif student.mentor != mentor:
-            raise ValidationError({"error": _("Пользователь не является вашим студентом")})
+            raise ValidationError(
+                {"error": _("Пользователь не является вашим студентом")}
+            )
 
         mentor.students.remove(student)
 

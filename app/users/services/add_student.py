@@ -30,13 +30,19 @@ class AddStudentService:
 
     def _add_student(self, mentor: User, student: User) -> User:
         if mentor == student:
-            raise ValidationError({"error": _("Нельзя добавлять себя в качестве студента")})
+            raise ValidationError(
+                {"error": _("Нельзя добавлять себя в качестве студента")}
+            )
 
         if student.mentor:
             if student.mentor != mentor:
-                raise ValidationError({"error": _("У студента уже есть ментор")})
+                raise ValidationError(
+                    {"error": _("У студента уже есть ментор")}
+                )
             else:
-                raise ValidationError({"error": _("Студент уже числится у вас")})
+                raise ValidationError(
+                    {"error": _("Студент уже числится у вас")}
+                )
 
         mentor.students.add(student)
 

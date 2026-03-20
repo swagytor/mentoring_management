@@ -5,7 +5,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class User(AbstractUser):
-    phone = PhoneNumberField(verbose_name=_("Номер телефона"), blank=True, null=True)
+    phone = PhoneNumberField(
+        verbose_name=_("Номер телефона"), blank=True, null=True
+    )
     raw_password = models.CharField(
         verbose_name=_("Сырой пароль"), max_length=255, blank=True, null=True
     )

@@ -17,6 +17,7 @@ python-dotenv = "^1.2.2"
 django-filter = "^25.2"
 django-phonenumber-field = "^8.4.0"
 phonenumbers = "^9.0.26"
+djangorestframework-stubs = "^3.16.8"
 
 
 [tool.poetry.group.formatter.dependencies]

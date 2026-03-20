@@ -18,7 +18,10 @@ class Migration(migrations.Migration):
             model_name="user",
             name="raw_password",
             field=models.CharField(
-                blank=True, max_length=255, null=True, verbose_name="Сырой пароль"
+                blank=True,
+                max_length=255,
+                null=True,
+                verbose_name="Сырой пароль",
             ),
         ),
     ]

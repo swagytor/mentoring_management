@@ -14,11 +14,16 @@ class UserViewSetTestCase(APITestCase):
         )
 
         self.mentor = User.objects.create_user(
-            username="mentor", email="mentor@test.com", password="password123", is_mentor=True
+            username="mentor",
+            email="mentor@test.com",
+            password="password123",
+            is_mentor=True,
         )
 
         self.student = User.objects.create_user(
-            username="student", email="student@test.com", password="password123"
+            username="student",
+            email="student@test.com",
+            password="password123",
         )
 
     def auth(self, user):

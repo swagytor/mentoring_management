@@ -15,7 +15,14 @@ class UpdateUserService:
                 setattr(user, key, value)
 
         user.save(
-            update_fields=["first_name", "last_name", "email", "password", "raw_password", "phone"]
+            update_fields=[
+                "first_name",
+                "last_name",
+                "email",
+                "password",
+                "raw_password",
+                "phone",
+            ]
         )
 
         return user
