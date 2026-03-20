@@ -10,6 +10,13 @@ class User(AbstractUser):
         verbose_name=_("Сырой пароль"), max_length=255, blank=True, null=True
     )
     is_mentor = models.BooleanField(verbose_name=_("Ментор"), default=False)
+    mentor = models.ForeignKey(
+        "users.User",
+        verbose_name=_("Ментор"),
+        on_delete=models.SET_NULL,
+        related_name="students",
+        null=True,
+    )
 
     def __str__(self):
         return f"{self.username} {self.email} {self.phone}"

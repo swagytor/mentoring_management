@@ -19,11 +19,21 @@ class RegisterUserSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email", "phone")
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "is_mentor",
+        )
 
 
 class RetrieveUserSerializer(serializers.ModelSerializer):
     password = serializers.SerializerMethodField(read_only=True)
+    students = serializers.SerializerMethodField(read_only=True)
+    mentor = serializers.CharField(source="mentor.username", read_only=True)
 
     def get_password(self, obj):
         request = self.context.get("request")
@@ -31,12 +41,44 @@ class RetrieveUserSerializer(serializers.ModelSerializer):
             return ""
         return obj.raw_password
 
+    def get_students(self, obj: User):
+        if obj.is_mentor:
+            return [student.username for student in obj.students.all()]
+        return []
+
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email", "password", "phone")
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "phone",
+            "mentor",
+            "students",
+            "is_mentor",
+        )
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email", "password", "phone")
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "phone",
+        )
+
+
+class UserLogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+
+class AddStudentSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField(required=True)
