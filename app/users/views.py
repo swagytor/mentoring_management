@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from config.permissions import IsOwner
+from config.permissions import IsOwner, IsMentor
 from users import schemas
 from users.models import User
 from users.serializers import (
@@ -13,8 +13,14 @@ from users.serializers import (
     RegisterUserSerializer,
     UpdateUserSerializer,
     RetrieveUserSerializer,
+    AddStudentSerializer,
 )
-from users.services import RegisterUserService, UpdateUserService
+from users.services import (
+    RegisterUserService,
+    UpdateUserService,
+    AddStudentService,
+    RemoveStudentService,
+)
 
 
 class UserViewSet(
@@ -27,13 +33,15 @@ class UserViewSet(
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return User.objects.all()
+        return User.objects.prefetch_related("students").select_related("mentor").all()
 
     def get_serializer_class(self):
         if self.action == "registration":
             return RegisterUserSerializer
         elif self.action == "retrieve":
             return RetrieveUserSerializer
+        elif self.action in ["add_student", "remove_student"]:
+            return AddStudentSerializer
         elif self.action in ["update", "partial_update"]:
             return UpdateUserSerializer
 
@@ -42,6 +50,8 @@ class UserViewSet(
     def get_permissions(self):
         if self.action in ["update", "partial_update"]:
             return [IsAuthenticated(), IsOwner()]
+        elif self.action in ["add_student", "remove_student"]:
+            return [IsAuthenticated(), IsMentor()]
         elif self.action == "registration":
             return [AllowAny()]
 
@@ -55,6 +65,26 @@ class UserViewSet(
         RegisterUserService()(serializer.validated_data)
 
         return Response({"detail": "Регистрация прошла успешно"}, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"])
+    def add_student(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        mentor = AddStudentService()(request.user, serializer.validated_data)
+        serializer = RetrieveUserSerializer(mentor, context={"request": request})
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def remove_student(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        mentor = RemoveStudentService()(request.user, serializer.validated_data)
+        serializer = RetrieveUserSerializer(mentor, context={"request": request})
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
