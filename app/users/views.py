@@ -38,7 +38,11 @@ class UserViewSet(
     search_fields = ["username", "email", "phone", "first_name", "last_name"]
 
     def get_queryset(self):
-        return User.objects.prefetch_related("students").select_related("mentor").all()
+        return (
+            User.objects.prefetch_related("students")
+            .select_related("mentor")
+            .all()
+        )
 
     def get_serializer_class(self):
         if self.action == "registration":
@@ -69,7 +73,10 @@ class UserViewSet(
 
         RegisterUserService()(serializer.validated_data)
 
-        return Response({"detail": "Регистрация прошла успешно"}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"detail": "Регистрация прошла успешно"},
+            status=status.HTTP_201_CREATED,
+        )
 
     @action(detail=False, methods=["post"])
     def add_student(self, request, *args, **kwargs):
@@ -77,7 +84,9 @@ class UserViewSet(
         serializer.is_valid(raise_exception=True)
 
         mentor = AddStudentService()(request.user, serializer.validated_data)
-        serializer = RetrieveUserSerializer(mentor, context={"request": request})
+        serializer = RetrieveUserSerializer(
+            mentor, context={"request": request}
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -86,23 +95,33 @@ class UserViewSet(
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        mentor = RemoveStudentService()(request.user, serializer.validated_data)
-        serializer = RetrieveUserSerializer(mentor, context={"request": request})
+        mentor = RemoveStudentService()(
+            request.user, serializer.validated_data
+        )
+        serializer = RetrieveUserSerializer(
+            mentor, context={"request": request}
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, context={"request": request})
+        serializer = self.get_serializer(
+            instance, context={"request": request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            instance=instance, data=request.data, partial=True
+        )
         serializer.is_valid(raise_exception=True)
 
         instance = UpdateUserService()(instance, serializer.validated_data)
-        serializer = RetrieveUserSerializer(instance, context={"request": request})
+        serializer = RetrieveUserSerializer(
+            instance, context={"request": request}
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 

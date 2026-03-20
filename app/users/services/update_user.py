@@ -15,14 +15,22 @@ class UpdateUserService:
                 setattr(user, key, value)
 
         user.save(
-            update_fields=["first_name", "last_name", "email", "password", "raw_password", "phone"]
+            update_fields=[
+                "first_name",
+                "last_name",
+                "email",
+                "password",
+                "raw_password",
+                "phone",
+            ]
         )
 
         return user
 
     def _validate_data(self, data: dict) -> dict:
-        raw_password = data["password"]
-        data["raw_password"] = raw_password
-        data["password"] = make_password(raw_password)
+        raw_password = data.get("password")
+        if raw_password:
+            data["raw_password"] = raw_password
+            data["password"] = make_password(raw_password)
 
         return data

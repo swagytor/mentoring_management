@@ -7,11 +7,13 @@ from users.models import User
 
 class RegisterUserSerializer(serializers.Serializer):
     username = serializers.CharField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
     password = serializers.CharField(required=True)
     email = serializers.EmailField(
-        required=False, validators=[UniqueValidator(queryset=User.objects.all())]
+        required=False,
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
     phone = PhoneNumberField(required=False)
 
