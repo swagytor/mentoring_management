@@ -19,7 +19,15 @@ class RegisterUserSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email", "phone")
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "is_mentor",
+        )
 
 
 class RetrieveUserSerializer(serializers.ModelSerializer):
@@ -50,6 +58,7 @@ class RetrieveUserSerializer(serializers.ModelSerializer):
             "phone",
             "mentor",
             "students",
+            "is_mentor",
         )
 
 

@@ -1,10 +1,11 @@
 from drf_spectacular.utils import extend_schema_view
-from rest_framework import viewsets, mixins, status, views
+from rest_framework import viewsets, mixins, status, views, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from config.paginations import CustomPagination
 from config.permissions import IsOwner, IsMentor
 from users import schemas
 from users.models import User
@@ -31,6 +32,10 @@ class UserViewSet(
 ):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    ordering_fields = ["id", "username", "first_name", "last_name", "email"]
+    search_fields = ["username", "email", "phone", "first_name", "last_name"]
 
     def get_queryset(self):
         return User.objects.prefetch_related("students").select_related("mentor").all()
