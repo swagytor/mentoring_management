@@ -21,8 +21,9 @@ class UpdateUserService:
         return user
 
     def _validate_data(self, data: dict) -> dict:
-        raw_password = data["password"]
-        data["raw_password"] = raw_password
-        data["password"] = make_password(raw_password)
+        raw_password = data.get("password")
+        if raw_password:
+            data["raw_password"] = raw_password
+            data["password"] = make_password(raw_password)
 
         return data
