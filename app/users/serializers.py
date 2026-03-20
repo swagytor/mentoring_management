@@ -40,3 +40,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "username", "first_name", "last_name", "email", "password", "phone")
+
+
+class UserLogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()

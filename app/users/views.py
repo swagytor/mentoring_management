@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_view
 from rest_framework import viewsets, mixins, status, views
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -5,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from config.permissions import IsOwner
+from users import schemas
 from users.models import User
 from users.serializers import (
     UserSerializer,
@@ -70,11 +72,12 @@ class UserViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@extend_schema_view(**schemas.user_logout_schema_view)
 class UserLogoutAPIView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=["post"])
-    def logout(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
             refresh_token = request.data["refresh"]
             token = RefreshToken(refresh_token)
